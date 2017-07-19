@@ -1,0 +1,212 @@
+#!/bin/bash
+# ================================================================================
+# SSL cert management script for Let's Encrypt - Script
+#
+# author: Axel Pardemann (axelitus)
+# inspired-by: https://gist.github.com/thisismitch/7c91e9b2b63f837a0c4b
+# ================================================================================
+declare -r SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Set the path where this script is
+declare -r UTILS_PATH="$SCRIPT_PATH/../lib/ssl-certs-utils" # Load utils scripts
+if [ -f "$UTILS_PATH" ]; then
+    source "$UTILS_PATH"
+else
+    echo "[ERROR] Cannot found \"$UTILS_PATH\" utils library."
+    exit 1
+fi
+
+
+# ========== begin: main ==========
+
+__ssl-certs()
+{
+    local action
+
+    action=${args[0]};
+    case "$action" in
+        "certbot")
+            __ssl-certs_certbot "${args[@]:1}"
+            ;;
+        "help" | "-h" | "-?")
+            __ssl-certs_help
+            ;;
+        "get")
+            __ssl-certs_get
+            ;;
+        "renew")
+            __ssl-certs_renew
+            ;;
+        "revoke")
+            __ssl-certs_revoke
+            ;;
+        *)
+            __ssl-certs_help
+            ;;
+    esac
+}
+
+# ========== end: main ==========
+
+
+# ========== begin: certbot ==========
+
+__ssl-certs_certbot()
+{
+    local args argc action
+
+    args=($@)
+    argc=${#args[@]}
+    if [[ "$argc" -lt 1 ]]; then
+        echo "[ERROR] Missing action argument. Please use \"ssl-certs certbot help\" to get help."
+        exit $EXIT_CODE_ERROR
+    fi
+
+    action=${args[0]};
+    case "$action" in
+        "help" | "-h" | "-?")
+            __ssl-certs_certbot_help
+            ;;
+        "install")
+            __ssl-certs_certbot_install
+            ;;
+        "remove")
+            __ssl-certs_certbot_remove
+            ;;
+        "update")
+            __ssl-certs_certbot_update
+            ;;
+        *)
+            __ssl-certs_certbot_help
+            ;;
+    esac
+}
+
+# ---------- begin: certbot help ----------
+__ssl-certs_certbot_help()
+{
+    echo "certbot help"
+}
+# ---------- begin: certbot help ----------
+
+# ---------- begin: certbot install ----------
+__ssl-certs_certbot_install()
+{
+    __certbot_exists
+    if [ $? -eq $TRUE ]; then
+        if [ ! -L "/usr/bin/certbot-auto" ]; then
+            ln -s "$CERTBOT_DEFAULT_PATH/certbot-auto" "/usr/bin/certbot-auto"
+        fi
+        __certbot_exists
+        echo "[INFO] Certbot is already installed and can be execute using \"$certbot\" command."
+        exit $EXIT_CODE_OK
+    fi
+
+    echo "[INFO] Certbot will be installed in $CERTBOT_DEFAULT_PATH and a symlink will be created in \"/usr/bin\" folder..."
+    git=$(which git)
+    if [ -z "$git" ]; then
+        "[ERROR] Git is not installed. Please install it before running this command again."
+        exit $EXIT_CODE_ERROR
+    fi
+
+    git clone "$CERTBOT_REPO" "$CERTBOT_DEFAULT_PATH"
+    if [ ! -f "$CERTBOT_DEFAULT_PATH/certbot-auto" ]; then
+        echo "[ERROR] Could not install certbot. Please try again."
+        exit $EXIT_CODE_ERROR
+    fi
+
+    ln -s "$CERTBOT_DEFAULT_PATH/certbot-auto" "/usr/bin/certbot-auto"
+    if [ ! -L "/usr/bin/certbot-auto" ]; then
+        "[ERROR] Could not symlink certbot-auto but it was correctly installed in \"$CERTBOT_DEFAULT_PATH\" folder."
+        exit $EXIT_CODE_ERROR
+    fi
+
+    echo "[INFO] Certbot was correctly installed. You can use it with \"certbot-auto\" command."
+}
+# ---------- end: certbot install ----------
+
+# ---------- begin: certbot remove ----------
+__ssl-certs_certbot_remove()
+{
+    __certbot_exists
+    if [ $? -eq $FALSE ]; then
+        echo "[INFO] Certbot is not installed."
+        exit $EXIT_CODE_OK
+    fi
+
+    echo "[INFO] Certbot will be remove from \"$CERTBOT_DEFAULT_PATH\" and the symlink will be deleted..."
+    rm -rf "$CERTBOT_DEFAULT_PATH"
+    if [ -d "$CERTBOT_DEFAULT_PATH" ]; then
+        echo "[ERROR] Could not remove certbot folder. Please try again."
+        exit $EXIT_CODE_ERROR
+    fi
+
+    if [ -f "/usr/bin/certbot-auto" ]; then
+        rm "/usr/bin/certbot-auto"
+        if [ -L "/usr/bin/certbot-auto" ]; then
+            "[ERROR] Could not remove certbot-auto symlink but it was correctly removed from \"$CERTBOT_DEFAULT_PATH\" folder."
+            exit $EXIT_CODE_ERROR
+        fi
+    fi
+
+    echo "[INFO] Certbot was correctly removed."
+}
+# ---------- end: certbot remove ----------
+
+# ---------- begin: certbot update ----------
+__ssl-certs_certbot_update()
+{
+    __certbot_exists
+    if [ $? -eq $FALSE ]; then
+        echo "[INFO] Certbot is not installed. Please install it with \"ssl-certs certbot install\""
+        exit $EXIT_CODE_ERROR
+    fi
+
+    (cd "$CERTBOT_DEFAULT_PATH" && git pull)
+}
+# ---------- end: certbot update ----------
+
+# ========== end: certbot ==========
+
+
+# ========== begin: help ==========
+
+__ssl-certs_help()
+{
+    echo "ssl-certs help"
+}
+
+# ========== end: help ==========
+
+
+# ========== begin: get ==========
+
+__ssl-certs_get()
+{
+    echo "ssl-certs get"
+}
+
+# ========== end: get ==========
+
+
+# ========== begin: renew ==========
+
+__ssl-certs_renew()
+{
+    echo "ssl-certs renew"
+}
+
+# ========== begin: renew ==========
+
+
+# ========== begin: revoke ==========
+
+__ssl-certs_revoke()
+{
+    echo "ssl-certs revoke"
+}
+
+# ========== end: revoke ==========
+
+
+# ********** begin: entry point **********
+__ssl-certs "$@"
+# ********** end: entry point **********

@@ -1,0 +1,96 @@
+#!/bin/bash
+# ================================================================================
+# SSL cert management script for Let's Encrypt - Utils
+#
+# author: Axel Pardemann (axelitus)
+# ================================================================================
+declare -r FALSE=0 # Set TRUE constant
+declare -r TRUE=1 # Set FALSE constant
+declare -r EXIT_CODE_OK=0 # Set default exit code ok
+declare -r EXIT_CODE_ERROR=1 # Set default exit code error
+declare -r CERTBOT_DEFAULT_PATH="/opt/certbot" # The path to the certbot-auto executable
+declare -r CERTBOT_REPO="https://github.com/certbot/certbot" # Set the certbot repo address to clone
+declare -r config_path="/etc/ssl-certs" # Set the configuration folder path
+declare -r cert_path="/etc/ssl/domains" # Set the path where the certificates will be symlinked to
+
+
+__certbot_exists()
+{
+    certbot=$(which certbot-auto)
+    if [ -z "$certbot" ]; then
+        if [ -f "$CERTBOT_DEFAULT_PATH/certbot-auto" ]; then
+            certbot="$CERTBOT_DEFAULT_PATH/certbot-auto"
+            return $TRUE
+        fi
+        return $FALSE
+    fi
+
+    return $TRUE
+}
+
+# __echo_repeat(string str, int num)
+# Echoes multiple times the given string
+__echo_repeat()
+{
+    local str num
+    str=$1; num=$2
+
+    if [ -z "$str" ]; then
+        return
+    fi
+
+    if [ -z "$num" ]; then
+        num=1
+    fi
+
+    repeated=$(printf "%-${num}s" "$str")
+    echo "${repeated// /$str}"
+}
+
+# __ensure_folder(string path, integer mode)
+# Verifies if folder exists, if not then it creates it with the given mode (or default if non given).
+# Returns true if nothing failed, false otherwise.
+__ensure_folder()
+{
+    local path mode
+    path=$1; mode=$2
+
+    if [ -z "$path" ]; then
+        return $FALSE;
+    fi
+
+    __folder_exists "$path"
+    if [ ! $? ]; then
+        mkdir -p "$path"
+        if [ ! $? ]; then
+            return $FALSE
+        else
+            if [ -n "$mode" ]; then
+                chmod "$mode" "$path"
+                if [ ! $? ]; then
+                    return $FALSE;
+                fi
+            fi
+        fi
+    fi
+
+    return $TRUE
+}
+
+# __folder_exists(string path)
+# Returns true if the given folder exists (and is not a symlink), false otherwise.
+__folder_exists()
+{
+    local path
+    path=$1
+
+    if [ -z "$path" ]; then
+        return $FALSE;
+    fi
+
+    if [[ -d "$path" && ! -L "$path" ]]; then
+        return $TRUE
+    else
+        return $FALSE
+    fi
+}
