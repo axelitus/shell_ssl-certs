@@ -5,6 +5,7 @@
 # author: Axel Pardemann (axelitus)
 # inspired-by: https://gist.github.com/thisismitch/7c91e9b2b63f837a0c4b
 # ================================================================================
+declare -r VERSION="0.1-alpha"
 declare -r SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Set the path where this script is
 declare -r UTILS_PATH="$SCRIPT_PATH/../lib/ssl-certs-utils" # Load utils scripts
 if [ -f "$UTILS_PATH" ]; then
@@ -19,9 +20,10 @@ fi
 
 __ssl-certs()
 {
-    local action
+    local args action
 
-    action=${args[0]};
+    args=($@)
+    action=${args[0]}
     case "$action" in
         "certbot")
             __ssl-certs_certbot "${args[@]:1}"
@@ -38,6 +40,9 @@ __ssl-certs()
         "revoke")
             __ssl-certs_revoke
             ;;
+        "version")
+            __ssl-certs_version
+            ;;
         *)
             __ssl-certs_help
             ;;
@@ -51,16 +56,10 @@ __ssl-certs()
 
 __ssl-certs_certbot()
 {
-    local args argc action
+    local args action
 
     args=($@)
-    argc=${#args[@]}
-    if [[ "$argc" -lt 1 ]]; then
-        echo "[ERROR] Missing action argument. Please use \"ssl-certs certbot help\" to get help."
-        exit $EXIT_CODE_ERROR
-    fi
-
-    action=${args[0]};
+    action=${args[0]}
     case "$action" in
         "help" | "-h" | "-?")
             __ssl-certs_certbot_help
@@ -205,6 +204,16 @@ __ssl-certs_revoke()
 }
 
 # ========== end: revoke ==========
+
+
+# ========== begin: version ==========
+
+__ssl-certs_version()
+{
+    echo "ssl-certs v$VERSION"
+}
+
+# ========== end: version ==========
 
 
 # ********** begin: entry point **********
