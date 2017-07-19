@@ -10,9 +10,12 @@ declare -r EXIT_CODE_OK=0 # Set default exit code ok
 declare -r EXIT_CODE_ERROR=1 # Set default exit code error
 declare -r CERTBOT_DEFAULT_PATH="/opt/certbot" # The path to the certbot-auto executable
 declare -r CERTBOT_REPO="https://github.com/certbot/certbot" # Set the certbot repo address to clone
-declare -r config_path="/etc/ssl-certs" # Set the configuration folder path
-declare -r cert_path="/etc/ssl/domains" # Set the path where the certificates will be symlinked to
-
+declare -r CONFIG_PATH="/etc/ssl-certs" # Set the configuration folder path
+declare -r CERT_PATH="/etc/ssl/domains" # Set the path where the certificates will be symlinked to
+declare -r COLOR_RESET="\033[0m"
+declare -r COLOR_RED="\033[0;31m"
+declare -r COLOR_GREEN="\033[0;32m"
+declare -r COLOR_YELLOW="\033[0;33m"
 
 __certbot_exists()
 {
