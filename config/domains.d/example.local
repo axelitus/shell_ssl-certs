@@ -1,0 +1,8 @@
+# Domain(s) to be registered
+domains = example.local, www.example.local
+
+# Key size for certificate
+rsa-key-size = 2048
+
+# Email for registration
+email = admin@example.local
