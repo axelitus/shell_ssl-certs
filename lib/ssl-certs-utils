@@ -8,7 +8,8 @@ declare -r FALSE=0 # Set TRUE constant
 declare -r TRUE=1 # Set FALSE constant
 declare -r EXIT_CODE_OK=0 # Set default exit code ok
 declare -r EXIT_CODE_ERROR=1 # Set default exit code error
-declare -r CERTBOT_DEFAULT_PATH="/opt/certbot" # The path to the certbot-auto executable
+declare -r CERTBOT_PATH="/opt/certbot" # The path to the certbot-auto executable
+declare -r CERTBOT_SYMLINK="/usr/bin/certbot-auto" # Set the path to the certbot symlink
 declare -r CERTBOT_REPO="https://github.com/certbot/certbot" # Set the certbot repo address to clone
 declare -r CONFIG_PATH="/etc/ssl-certs" # Set the configuration folder path
 declare -r CERT_PATH="/etc/ssl/domains" # Set the path where the certificates will be symlinked to
@@ -21,8 +22,8 @@ __certbot_exists()
 {
     certbot=$(which certbot-auto)
     if [ -z "$certbot" ]; then
-        if [ -f "$CERTBOT_DEFAULT_PATH/certbot-auto" ]; then
-            certbot="$CERTBOT_DEFAULT_PATH/certbot-auto"
+        if [ -f "$CERTBOT_PATH/certbot-auto" ]; then
+            certbot="$CERTBOT_PATH/certbot-auto"
             return $TRUE
         fi
         return $FALSE
