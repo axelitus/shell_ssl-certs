@@ -82,8 +82,30 @@ __ssl-certs_certbot()
 # ---------- begin: certbot help ----------
 __ssl-certs_certbot_help()
 {
-    echo "certbot help"
+    echo
+    __ssl-certs_version
+    echo
+    echo -e "${COLOR_YELLOW}Usage:${COLOR_RESET}"
+    echo -e "  ${COLOR_GREEN}ssl-certs certbot${COLOR_RESET} command"
+    echo
+    echo -e "${COLOR_YELLOW}Available commands:${COLOR_RESET}"
+
+    __ssl-certs_certbot_help_commands
+    for ((i=0; i<=${#commands[@]}; i+=2)) do
+        cmd_str="$cmd_str  ${COLOR_GREEN}${commands[i]}${COLOR_RESET}\t${commands[i+1]}\n"
+    done
+    echo -e "$cmd_str" | column -t -s $'\t'
 }
+
+__ssl-certs_certbot_help_commands()
+{
+    commands=( \
+        "install" "Installs Let's Encrypt certbot." \
+        "remove" "Removes Let's Encrypt certbot." \
+        "update" "Updates Let's Encrypt certbot to the latest published version." \
+    )
+}
+
 # ---------- begin: certbot help ----------
 
 # ---------- begin: certbot install ----------
