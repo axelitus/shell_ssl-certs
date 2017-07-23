@@ -65,13 +65,13 @@ __ssl-certs_certbot()
             __ssl-certs_certbot_help
             ;;
         "install")
-            __ssl-certs_certbot_install
+            __ssl-certs_certbot_install "${args[@]:1}"
             ;;
         "remove")
             __ssl-certs_certbot_remove
             ;;
         "update")
-            __ssl-certs_certbot_update
+            __ssl-certs_certbot_update "${args[@]:1}"
             ;;
         *)
             __ssl-certs_certbot_help
@@ -105,12 +105,24 @@ __ssl-certs_certbot_help_commands()
         "update" "Updates Let's Encrypt certbot to the latest published version." \
     )
 }
-
 # ---------- begin: certbot help ----------
 
 # ---------- begin: certbot install ----------
 __ssl-certs_certbot_install()
 {
+    local no_deps
+    no_deps=$FALSE
+
+    while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]]
+    do
+        option="$1" && shift
+        case "$option" in
+            "--no-deps")
+                no_deps=$TRUE
+                ;;
+        esac
+    done
+
     __certbot_exists
     if [ $? -eq $TRUE ]; then
         if [ ! -L "$CERTBOT_SYMLINK" ]; then
@@ -189,6 +201,19 @@ __ssl-certs_certbot_remove()
 # ---------- begin: certbot update ----------
 __ssl-certs_certbot_update()
 {
+    local no_deps
+    no_deps=$FALSE
+
+    while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]]
+    do
+        option="$1" && shift
+        case "$option" in
+            "--no-deps")
+                no_deps=$TRUE
+                ;;
+        esac
+    done
+
     __certbot_exists
     if [ $? -eq $FALSE ]; then
         echo "[INFO] Certbot is not installed. Please install it with \"ssl-certs certbot install\""
