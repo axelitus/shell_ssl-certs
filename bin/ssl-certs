@@ -112,8 +112,9 @@ __ssl-certs_certbot_help_commands()
 # ---------- begin: certbot install ----------
 __ssl-certs_certbot_install()
 {
-    local no_deps
+    local no_deps extra_options
     no_deps=$FALSE
+    extra_options=""
 
     while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]]
     do
@@ -121,6 +122,9 @@ __ssl-certs_certbot_install()
         case "$option" in
             "--no-deps")
                 no_deps=$TRUE
+                ;;
+            "--noninteractive")
+                extra_options="$extra_options --noninteractive"
                 ;;
         esac
     done
@@ -157,7 +161,7 @@ __ssl-certs_certbot_install()
     if [ $no_deps -eq $FALSE ]; then
         __certbot_exists
         echo "Installing certbot dependencies..."
-        $certbot --os-packages-only
+        $certbot --os-packages-only $extra_options
         echo "Certbot dependencies installed."
     else
         echo "[INFO] Skipping dependencies installation."
@@ -203,8 +207,9 @@ __ssl-certs_certbot_remove()
 # ---------- begin: certbot update ----------
 __ssl-certs_certbot_update()
 {
-    local no_deps
+    local no_deps extra_options
     no_deps=$FALSE
+    extra_options=""
 
     while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]]
     do
@@ -212,6 +217,9 @@ __ssl-certs_certbot_update()
         case "$option" in
             "--no-deps")
                 no_deps=$TRUE
+                ;;
+            "--noninteractive")
+                extra_options="$extra_options --noninteractive"
                 ;;
         esac
     done
@@ -226,7 +234,7 @@ __ssl-certs_certbot_update()
 
     if [ $no_deps -eq $FALSE ]; then
         echo "Updating certbot dependencies..."
-        $certbot --os-packages-only
+        $certbot --os-packages-only $extra_options
         echo "Certbot dependencies updated."
     fi
 }
