@@ -179,11 +179,7 @@ __ssl-certs_certbot_install()
 # ---------- begin: certbot remove ----------
 __ssl-certs_certbot_remove()
 {
-    __certbot_exists
-    if [ $? -eq $FALSE ]; then
-        echo "[INFO] Certbot is not installed."
-        exit $EXIT_CODE_OK
-    fi
+    __certbot_or_fail $EXIT_CODE_OK "[INFO] Certbot is currently not installed."
 
     if [ -L "$CERTBOT_SYMLINK" ]; then
         echo "[INFO] Removing certbot symlink..."
@@ -229,11 +225,7 @@ __ssl-certs_certbot_update()
         esac
     done
 
-    __certbot_exists
-    if [ $? -eq $FALSE ]; then
-        echo "[INFO] Certbot is not installed. Please install it with \"ssl-certs certbot install\""
-        exit $EXIT_CODE_ERROR
-    fi
+    __certbot_or_fail $EXIT_CODE_OK "[INFO] Certbot is currently not installed."
 
     (cd "$CERTBOT_PATH" && git pull)
 
