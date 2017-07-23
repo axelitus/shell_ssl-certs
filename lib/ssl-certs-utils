@@ -4,8 +4,8 @@
 #
 # author: Axel Pardemann (axelitus)
 # ================================================================================
-declare -r FALSE=0 # Set TRUE constant
-declare -r TRUE=1 # Set FALSE constant
+declare -r TRUE=0 # Set TRUE constant (shell convention is 0 for no errors)
+declare -r FALSE=1 # Set FALSE constant (shell convention is non-zero for errors)
 declare -r EXIT_CODE_OK=0 # Set default exit code ok
 declare -r EXIT_CODE_ERROR=1 # Set default exit code error
 declare -r CERTBOT_PATH="/opt/certbot" # The path to the certbot-auto executable
@@ -13,11 +13,15 @@ declare -r CERTBOT_SYMLINK="/usr/bin/certbot-auto" # Set the path to the certbot
 declare -r CERTBOT_REPO="https://github.com/certbot/certbot" # Set the certbot repo address to clone
 declare -r CONFIG_PATH="/etc/ssl-certs" # Set the configuration folder path
 declare -r CERT_PATH="/etc/ssl/domains" # Set the path where the certificates will be symlinked to
-declare -r COLOR_RESET="\033[0m"
-declare -r COLOR_RED="\033[0;31m"
-declare -r COLOR_GREEN="\033[0;32m"
-declare -r COLOR_YELLOW="\033[0;33m"
+declare -r COLOR_RESET="\033[0m" # Set color reset code
+declare -r COLOR_RED="\033[0;31m" # Set color red code
+declare -r COLOR_GREEN="\033[0;32m" # Set color green code
+declare -r COLOR_YELLOW="\033[0;33m" # Set color yellow code
 
+# __certbot_exists()
+# Verifies that certbot executable exists.
+# Returns true if it exists, false otherwise.
+# Sets the variable $certbot to the path of the executable.
 __certbot_exists()
 {
     certbot=$(which certbot-auto)
@@ -30,6 +34,14 @@ __certbot_exists()
     fi
 
     return $TRUE
+}
+
+# __concat_config_files($dest, $config1, $config2, ...)
+# Concatenates the given config files into a destination file.
+# Returns true 
+__concat_config_files()
+{
+    echo
 }
 
 # __echo_repeat(string str, int num)

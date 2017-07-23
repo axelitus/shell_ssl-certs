@@ -1,0 +1,6 @@
+#!/bin/bash
+# ================================================================================
+# Register certificates for use with HAProxy - completion script
+#
+# author: Axel Pardemann (axelitus)
+# ================================================================================
