@@ -220,7 +220,7 @@ __ssl-certs_certbot_update()
                 no_deps=$TRUE
                 ;;
             "--noninteractive")
-                extra_options="$extra_options --noninteractive"
+                extra_options="$extra_options $option"
                 ;;
         esac
     done
