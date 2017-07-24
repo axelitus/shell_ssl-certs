@@ -57,12 +57,32 @@ __certbot_or_fail()
     fi
 }
 
-# __concat_config_files($dest, $config1, $config2, ...)
-# Concatenates the given config files into a destination file.
-# Returns true 
+# __concat_config_files($config1, $config2, ...)
+# Concatenates the given config files
+# Returns true un success, false otherwise.
+# The resulting string will be in $concat_config variable.
 __concat_config_files()
 {
-    echo
+    local args argc
+    
+    args=("$@")
+    argc=${#args[@]}
+
+    if [ "$argc" -lt 2 ]; then
+        echo "[ERROR] Concatenation of config files requires at least 2 arguments, $argc given."
+        exit $EXIT_CODE_ERROR
+    fi
+
+    for f in "${args[@]}"
+    do
+        if [ ! -f "$f" ]; then
+            echo "[ERROR] The config file \"$f\" does not exist."
+            return $FALSE
+        fi
+    done
+
+    concat_config=$(cat "${args[@]}")
+    return $TRUE
 }
 
 # __echo_repeat(string str, int num)
