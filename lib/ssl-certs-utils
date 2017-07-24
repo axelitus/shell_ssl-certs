@@ -23,9 +23,11 @@ declare -r COLOR_YELLOW="\033[0;33m" # Set color yellow code
 # __certbot_exists()
 # Verifies that certbot executable exists.
 # Returns true if it exists, false otherwise.
-# Sets the variable $certbot to the path of the executable.
+# Echoes the path of the certbot executable.
 __certbot_exists()
 {
+    local certbot
+
     certbot=$(which certbot-auto)
     if [ -z "$certbot" ]; then
         if [ -f "$CERTBOT_PATH/certbot-auto" ]; then
@@ -35,32 +37,36 @@ __certbot_exists()
         return $FALSE
     fi
 
+    echo "$certbot"
     return $TRUE
 }
 
 # __certbot_or_fail(int exit code, string message)
 # Verifies if certbot exists or script execution will fail.
-# Sets the variable $certbot to the path of the executable.
+# Echoes the path of the certbot executable.
 __certbot_or_fail()
 {
-    exit_code=$1
-    message=$2
+    local exit_code message
+    exit_code=$1; message=$2
 
     if [ -z "$exit_code" ]; then
         exit_code=$EXIT_CODE_ERROR
     fi
 
-    __certbot_exists
+    certbot=$(__certbot_exists)
     if [ $? -eq $FALSE ]; then
         echo "$message"
         exit $exit_code
     fi
+
+    echo "$certbot"
+    return $TRUE
 }
 
 # __concat_config_files($config1, $config2, ...)
 # Concatenates the given config files
 # Returns true un success, false otherwise.
-# The resulting string will be in $concat_config variable.
+# Echoes the resulting config files concatenation.
 __concat_config_files()
 {
     local args argc
@@ -81,19 +87,20 @@ __concat_config_files()
         fi
     done
 
-    concat_config=$(cat "${args[@]}")
+    cat "${args[@]}"
     return $TRUE
 }
 
 # __echo_repeat(string str, int num)
-# Echoes multiple times the given string
+# Returns always true.
+# Echoes multiple times the given string.
 __echo_repeat()
 {
     local str num
     str=$1; num=$2
 
     if [ -z "$str" ]; then
-        return
+        return $TRUE
     fi
 
     if [ -z "$num" ]; then
@@ -102,6 +109,7 @@ __echo_repeat()
 
     repeated=$(printf "%-${num}s" "$str")
     echo "${repeated// /$str}"
+    return $TRUE
 }
 
 # __ensure_folder(string path, integer mode)
