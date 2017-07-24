@@ -268,6 +268,7 @@ __ssl-certs_help_commands()
         "certbot" "Manages Let's Encrypt certbot." \
         "help" "Displays help for this application." \
         "get" "Gets new certificates for domains from Let's Encrypt." \
+        "list" "Lists all registered certifciates."
         "renew" "Renews existing Let's Encrypt issued certificates." \
         "revoke" "Revokes existing Let's Encrypt issued certificates." \
         "version" "Displays this application version." \
