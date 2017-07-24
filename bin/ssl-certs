@@ -34,16 +34,16 @@ __ssl-certs()
             __ssl-certs_help
             ;;
         "get")
-            __ssl-certs_get
+            __ssl-certs_get "${args[@]:1}"
             ;;
         "list")
             __ssl-certs_list "${args[@]:1}"
             ;;
         "renew")
-            __ssl-certs_renew
+            __ssl-certs_renew "${args[@]:1}"
             ;;
         "revoke")
-            __ssl-certs_revoke
+            __ssl-certs_revoke "${args[@]:1}"
             ;;
         "version")
             __ssl-certs_version
@@ -126,11 +126,13 @@ __ssl-certs_certbot_install()
             "--no-deps")
                 no_deps=$TRUE
                 ;;
-            "--noninteractive")
+            "-n" | "--non-interactive" | "--noninteractive" | \
+            "--os-packages-only")
                 extra_options="$extra_options --noninteractive"
                 ;;
         esac
     done
+    extra_options="${extra_options:1}"
 
     certbot=$(__certbot_exists)
     if [ $? -eq $TRUE ]; then
@@ -222,11 +224,13 @@ __ssl-certs_certbot_update()
             "--no-deps")
                 no_deps=$TRUE
                 ;;
-            "--noninteractive")
+            "-n" | "--non-interactive" | "--noninteractive" | \
+            "--os-packages-only")
                 extra_options="$extra_options $option"
                 ;;
         esac
     done
+    extra_options="${extra_options:1}"
 
     certbot=$(__certbot_or_fail $EXIT_CODE_OK "[INFO] Certbot is currently not installed.")
 
@@ -282,6 +286,24 @@ __ssl-certs_help_commands()
 
 __ssl-certs_get()
 {
+    local extra_options
+    extra_options=""
+
+    while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]]
+    do
+        option="$1" && shift
+        case "$option" in
+            "--agree-tos" | \
+            "--keep-until-expiring" | "--keep" | "--reinstall" | \
+            "-n" | "--non-interactive" | "--noninteractive" | \
+            "--test-cert" | "--staging")
+                extra_options="$extra_options $option"
+                ;;
+        esac
+    done
+    extra_options="${extra_options:1}"
+
+    certbot=$(__certbot_or_fail $EXIT_CODE_ERROR "[ERROR] Certbot is not installed. Please install it with \"ssl-certs certbot install\" and run this command again.")
     config_files=$(find "$CONFIG_DOMAINS_PATH" -maxdepth 1 -type f -iname '*.ini' ! -iname '.*' | sort)
     OIFS="$IFS"; IFS=$'\n'; configs=($config_files); IFS="$OIFS"; configc=${#configs[@]}
 
@@ -331,11 +353,13 @@ __ssl-certs_list()
     do
         option="$1" && shift
         case "$option" in
-            "--noninteractive"|"--no-bootstrap")
+            "-n" | "--non-interactive" | "--noninteractive" | \
+            "--no-bootstrap")
                 extra_options="$extra_options $option"
                 ;;
         esac
     done
+    extra_options="${extra_options:1}"
 
     certbot=$(__certbot_or_fail $EXIT_CODE_ERROR "[ERROR] Certbot is not installed. Please install it with \"ssl-certs certbot install\" and run this command again.")
     $certbot certificates $extra_options
