@@ -332,10 +332,11 @@ __ssl-certs_get()
         fi
         echo -e "$concat_config" > "$tmp_config"
 
-        # TODO: execute certbot with the options and the temp config file
-        echo "$f"
-        
+        $certbot certonly --config "$tmp_config" $extra_options
         rm "$tmp_config" 2>/dev/null
+        echo "[INFO] Finished executing certbot for config file \"$f\" with certificate name \"$cert_name\""
+        echo
+
     done
 }
 
