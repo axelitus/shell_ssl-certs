@@ -25,7 +25,7 @@ __ssl-certs()
 {
     local args action
 
-    args=($@)
+    args=("$@")
     action=${args[0]}
     case "$action" in
         "certbot")
@@ -64,7 +64,7 @@ __ssl-certs_certbot()
 {
     local args action
 
-    args=($@)
+    args=("$@")
     action=${args[0]}
     case "$action" in
         "help" | "-h" | "-?")
