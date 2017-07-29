@@ -1,0 +1,10 @@
+#!/bin/bash
+# ================================================================================
+# SSL cert management script for Let's Encrypt - Pre-Domain Hook
+# ================================================================================
+echo "[INFO] SSL Certs pre-domain hook started..."
+
+# Add your code here
+
+
+echo "[INFO] SSL Certs pre-domain hook ended."

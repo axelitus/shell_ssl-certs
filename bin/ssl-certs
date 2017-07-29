@@ -314,6 +314,11 @@ __ssl-certs_get()
 
     for f in "${configs[@]}"
     do
+        if [ -f "$CONFIG_HOOK_PRE_DOMAIN" ]; then
+            echo "[INFO] Executing pre-domain hook for file \"$f\""
+            source "$CONFIG_HOOK_PRE_DOMAIN"
+        fi
+
         concat_config=$(__concat_config_files "$CONFIG_FILE" "$f")
         if [ $? -eq $FALSE ]; then
             echo "[ERROR] There seems to be an error with your configuration. Fix the problems and try again."
@@ -345,6 +350,12 @@ __ssl-certs_get()
         if [ ! -L "$cert_privkey" ]; then
             echo "[WARN] Seems like the certificate has not been correctly created, the live $CERTBOT_PRIVKEY_SUFFIX file is missing."
         fi
+
+        if [ -f "$CONFIG_HOOK_POST_DOMAIN" ]; then
+            echo "[INFO] Executing post-domain hook for cert_name \"$cert_name\"."
+            source "$CONFIG_HOOK_POST_DOMAIN"
+        fi
+
         rm "$tmp_config" 2>/dev/null
         echo "[INFO] Temp config \"$tmp_config\" removed."
 
