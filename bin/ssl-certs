@@ -314,6 +314,12 @@ __ssl-certs_get()
 
     for f in "${configs[@]}"
     do
+        cert_name=$(cat "$f" | grep "cert-name" | sed -E 's/cert-name( +)?=( +)?//')
+        if [ -d "$CERTBOT_LIVE_PATH/$cert_name" -a -L "$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_FULLCHAIN_SUFFIX.pem" ]; then
+            echo "[INFO] Certificate \"$cert_name\" exists, skipping certificate registration."
+            continue
+        fi
+
         if [ -f "$CONFIG_HOOK_PRE_DOMAIN" ]; then
             echo "[INFO] Executing pre-domain hook for file \"$f\""
             source "$CONFIG_HOOK_PRE_DOMAIN"
@@ -336,7 +342,6 @@ __ssl-certs_get()
             exit $EXIT_CODE_ERROR
         fi
         echo -e "$concat_config" > "$tmp_config"
-        cert_name=$(echo "$concat_config" | grep "cert-name" | sed -E 's/cert-name( +)?=( +)?//')
 
         $certbot certonly --config "$tmp_config" $extra_options
         echo "[INFO] Finished executing certbot for config file \"$f\" with certificate name \"$cert_name\"."
