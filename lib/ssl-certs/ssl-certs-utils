@@ -4,17 +4,31 @@
 #
 # author: Axel Pardemann (axelitus)
 # ================================================================================
+declare -r PREFIX_PATH=""
+
 declare -r TRUE=0 # Set TRUE constant (shell convention is 0 for no errors)
 declare -r FALSE=1 # Set FALSE constant (shell convention is non-zero for errors)
 declare -r EXIT_CODE_OK=0 # Set default exit code ok
 declare -r EXIT_CODE_ERROR=1 # Set default exit code error
+
 declare -r CERTBOT_PATH="/opt/certbot" # The path to the certbot-auto executable
 declare -r CERTBOT_SYMLINK="/usr/bin/certbot-auto" # Set the path to the certbot symlink
 declare -r CERTBOT_REPO="https://github.com/certbot/certbot" # Set the certbot repo address to clone
-declare -r CONFIG_PATH="/etc/ssl-certs" # Set the configuration folder path
-declare -r CONFIG_FILE="$CONFIG_PATH/ssl-certs.ini" # Set the main configuration file path
+declare -r CERTBOT_STORAGE_PATH="/etc/letsencrypt" # Set the certbot storage path
+declare -r CERTBOT_ARCHIVE_PATH="$CERTBOT_STORAGE_PATH/archive" # Set the certbot archive path
+declare -r CERTBOT_LIVE_PATH="$CERTBOT_STORAGE_PATH/live" # Set the certbot live path
+declare -r CERTBOT_FULLCHAIN_SUFFIX="fullchain" # Set the certbot fullchain suffix
+declare -r CERTBOT_PRIVKEY_SUFFIX="privkey" # Set the certbot privkey suffix
+declare -r CERTBOT_COMBINED_SUFFIX="combined" # Set the certbot combined suffix
+
+declare -r CONFIG_PATH="$PREFIX_PATH/etc/ssl-certs" # Set the configuration folder path
+declare -r CONFIG_HOOKS_PATH="$PREFIX_PATH/etc/ssl-certs/hooks.d" # Set the hook's folder path
+declare -r CONFIG_CERT_PATH="$PREFIX_PATH/etc/ssl/domains" # Set the path where the certificates will be symlinked to
 declare -r CONFIG_DOMAINS_PATH="$CONFIG_PATH/domains.d" # Set the individual domains config file path
-declare -r CERT_PATH="/etc/ssl/domains" # Set the path where the certificates will be symlinked to
+declare -r CONFIG_FILE="$CONFIG_PATH/ssl-certs.ini" # Set the main configuration file path
+declare -r CONFIG_HOOK_PRE_DOMAIN="$CONFIG_HOOKS_PATH/pre-domain" # Set the path for the pre-domain hook
+declare -r CONFIG_HOOK_POST_DOMAIN="$CONFIG_HOOKS_PATH/post-domain" # Set the path for the post-domain hook
+
 declare -r COLOR_RESET="\033[0m" # Set color reset code
 declare -r COLOR_RED="\033[0;31m" # Set color red code
 declare -r COLOR_GREEN="\033[0;32m" # Set color green code

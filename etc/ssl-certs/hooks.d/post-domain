@@ -1,0 +1,40 @@
+#!/bin/bash
+# ================================================================================
+# SSL cert management script for Let's Encrypt - Post-Domain Hook
+# ================================================================================
+# Available variables:
+#   $cert_name          The certificate name
+#   $cert_fullchain     The certificate fullchain path (the live symlink)
+#   $cert_privkey       The certificate privkey path (the live symlink)
+# ================================================================================
+echo "[INFO] SSL Certs post-domain hook started..."
+
+# Create combined certificate file
+if [ -L "$cert_fullchain" -a -L "$cert_privkey" ]; then
+    echo "[INFO] Creating combined certificate file for \"$cert_name\"...."
+
+    cert_actual_fullchain=$(readlink "$cert_fullchain")
+    cert_actual_fullchain_filename=$(basename "$cert_actual_fullchain")
+    cert_actual_version="${cert_actual_fullchain_filename%%.*}"
+    cert_actual_version="${cert_actual_version/$CERTBOT_FULLCHAIN_SUFFIX/}"
+    cert_actual_combined="$CERTBOT_ARCHIVE_PATH/$cert_name/$CERTBOT_COMBINED_SUFFIX$cert_actual_version.pem"
+    cert_actual_combined_relative="${cert_actual_combined/$CERTBOT_STORAGE_PATH/..\/..}"
+    cert_combined="$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_COMBINED_SUFFIX.pem"
+
+    if [ -f "$cert_actual_combined" ]; then
+        rm -f "$cert_actual_combined"
+    fi
+    cat "$cert_fullchain" "$cert_privkey" > "$cert_actual_combined"
+
+    if [ -L "$cert_combined" ]; then
+        rm -f "$cert_combined"
+    fi
+    ln -s "$cert_actual_combined_relative" "$cert_combined"
+
+    echo "[INFO] Combined certificate file \"$cert_actual_combined\" created and symlinked to \"$cert_combined\"."
+fi
+
+# Add your code here
+
+
+echo "[INFO] SSL Certs post-domain hook ended."

@@ -7,7 +7,7 @@
 # ================================================================================
 declare -r VERSION="0.1-alpha" # Sets the script's version following SemVer convention
 declare -r SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Set the path where this script is installed
-declare -r UTILS_PATH="$SCRIPT_PATH/../lib/ssl-certs-utils" # Load utils scripts
+declare -r UTILS_PATH="/lib/ssl-certs/ssl-certs-utils" # Load utils scripts
 
 # Load utils script
 if [ -f "$UTILS_PATH" ]; then
@@ -314,6 +314,11 @@ __ssl-certs_get()
 
     for f in "${configs[@]}"
     do
+        if [ -f "$CONFIG_HOOK_PRE_DOMAIN" ]; then
+            echo "[INFO] Executing pre-domain hook for file \"$f\""
+            source "$CONFIG_HOOK_PRE_DOMAIN"
+        fi
+
         concat_config=$(__concat_config_files "$CONFIG_FILE" "$f")
         if [ $? -eq $FALSE ]; then
             echo "[ERROR] There seems to be an error with your configuration. Fix the problems and try again."
@@ -334,11 +339,27 @@ __ssl-certs_get()
         cert_name=$(echo "$concat_config" | grep "cert-name" | sed -E 's/cert-name( +)?=( +)?//')
 
         $certbot certonly --config "$tmp_config" $extra_options
-        rm "$tmp_config" 2>/dev/null
-        echo "[INFO] Finished executing certbot for config file \"$f\" with certificate name \"$cert_name\""
-        echo
+        echo "[INFO] Finished executing certbot for config file \"$f\" with certificate name \"$cert_name\"."
 
-        # TODO: Verify if certificates where registered (check return value $? for this and existance in default certificate folder etc/letsencrypt/live/$cert_names)
+        cert_fullchain="$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_FULLCHAIN_SUFFIX.pem"
+        if [ ! -L "$cert_fullchain" ]; then
+            echo "[WARN] Seems like the certificate has not been correctly created, the live $CERTBOT_FULLCHAIN_SUFFIX file is missing."
+        fi
+
+        cert_privkey="$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_PRIVKEY_SUFFIX.pem"
+        if [ ! -L "$cert_privkey" ]; then
+            echo "[WARN] Seems like the certificate has not been correctly created, the live $CERTBOT_PRIVKEY_SUFFIX file is missing."
+        fi
+
+        if [ -f "$CONFIG_HOOK_POST_DOMAIN" ]; then
+            echo "[INFO] Executing post-domain hook for cert_name \"$cert_name\"."
+            source "$CONFIG_HOOK_POST_DOMAIN"
+        fi
+
+        rm "$tmp_config" 2>/dev/null
+        echo "[INFO] Temp config \"$tmp_config\" removed."
+
+        echo "[INFO] Finished getting certificates for config \"$f\""
     done
 }
 
@@ -402,5 +423,11 @@ __ssl-certs_version()
 
 
 # ********** begin: entry point **********
+# Enforce to run with root privileges
+if [ $EUID != 0 ]; then
+    echo "Requesting root privileges to run ssl-certs..."
+    sudo "$0" "$@"
+    exit $?
+fi
 __ssl-certs "$@"
 # ********** end: entry point **********
