@@ -315,11 +315,14 @@ __ssl-certs_get()
     for f in "${configs[@]}"
     do
         cert_name=$(cat "$f" | grep "cert-name" | sed -E 's/cert-name( +)?=( +)?//')
-        if [[ -d "$CERTBOT_LIVE_PATH/$cert_name" -a -L "$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_FULLCHAIN_SUFFIX.pem" ]]; then
+        cert_info=$($certbot certificates | awk "/Certificate Name: $cert_name\$/,/privkey.pem\$/")
+
+        if [[ -n "$cert_info" ]]; then #|| ( -d "$CERTBOT_LIVE_PATH/$cert_name" && -L "$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_FULLCHAIN_SUFFIX.pem" ) ]]; then
             echo "[INFO] Certificate \"$cert_name\" exists, skipping certificate registration."
             continue
         fi
 
+        cert_days_expire=$(echo -e "$cert_info" | awk "/\(VALID: /,/ days\)/" | sed -e 's/.*VALID: \(.*\) days)/\1/')
         if [[ -f "$CONFIG_HOOK_PRE_DOMAIN" ]]; then
             echo "[INFO] Executing pre-domain hook for file \"$f\""
             source "$CONFIG_HOOK_PRE_DOMAIN"
