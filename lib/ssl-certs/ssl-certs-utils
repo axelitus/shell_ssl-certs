@@ -4,7 +4,7 @@
 #
 # author: Axel Pardemann (axelitus)
 # ================================================================================
-declare -r PREFIX_PATH=".."
+declare -r PREFIX_PATH=""
 
 declare -r TRUE=0 # Set TRUE constant (shell convention is 0 for no errors)
 declare -r FALSE=1 # Set FALSE constant (shell convention is non-zero for errors)
