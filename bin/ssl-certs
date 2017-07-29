@@ -7,7 +7,7 @@
 # ================================================================================
 declare -r VERSION="0.1-alpha" # Sets the script's version following SemVer convention
 declare -r SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Set the path where this script is installed
-declare -r UTILS_PATH="$SCRIPT_PATH/../lib/ssl-certs-utils" # Load utils scripts
+declare -r UTILS_PATH="/lib/ssl-certs/ssl-certs-utils" # Load utils scripts
 
 # Load utils script
 if [ -f "$UTILS_PATH" ]; then
