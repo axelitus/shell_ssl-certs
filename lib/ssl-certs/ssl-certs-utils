@@ -43,7 +43,7 @@ __certbot_exists()
     local certbot
 
     certbot=$(which certbot-auto)
-    if [ -z "$certbot" ]; then
+    if [[ -z "$certbot" ]]; then
         if [ -f "$CERTBOT_PATH/certbot-auto" ]; then
             certbot="$CERTBOT_PATH/certbot-auto"
             return $TRUE
@@ -63,12 +63,12 @@ __certbot_or_fail()
     local exit_code message
     exit_code=$1; message=$2
 
-    if [ -z "$exit_code" ]; then
+    if [[ -z "$exit_code" ]]; then
         exit_code=$EXIT_CODE_ERROR
     fi
 
     certbot=$(__certbot_exists)
-    if [ $? -eq $FALSE ]; then
+    if [[ $? -eq $FALSE ]]; then
         echo "$message"
         exit $exit_code
     fi
@@ -88,14 +88,14 @@ __concat_config_files()
     args=("$@")
     argc=${#args[@]}
 
-    if [ "$argc" -lt 2 ]; then
+    if [[ "$argc" -lt 2 ]]; then
         echo "[ERROR] Concatenation of config files requires at least 2 arguments, $argc given."
         exit $EXIT_CODE_ERROR
     fi
 
     for f in "${args[@]}"
     do
-        if [ ! -f "$f" ]; then
+        if [[ ! -f "$f" ]]; then
             echo "[ERROR] The config file \"$f\" does not exist."
             return $FALSE
         fi
@@ -113,11 +113,11 @@ __echo_repeat()
     local str num
     str=$1; num=$2
 
-    if [ -z "$str" ]; then
+    if [[ -z "$str" ]]; then
         return $TRUE
     fi
 
-    if [ -z "$num" ]; then
+    if [[ -z "$num" ]]; then
         num=1
     fi
 
@@ -134,19 +134,19 @@ __ensure_folder()
     local path mode
     path=$1; mode=$2
 
-    if [ -z "$path" ]; then
+    if [[ -z "$path" ]]; then
         return $FALSE;
     fi
 
     __folder_exists "$path"
-    if [ ! $? ]; then
+    if [[ ! $? ]]; then
         mkdir -p "$path"
-        if [ ! $? ]; then
+        if [[ ! $? ]]; then
             return $FALSE
         else
-            if [ -n "$mode" ]; then
+            if [[ -n "$mode" ]]; then
                 chmod "$mode" "$path"
-                if [ ! $? ]; then
+                if [[ ! $? ]]; then
                     return $FALSE;
                 fi
             fi
@@ -163,7 +163,7 @@ __folder_exists()
     local path
     path=$1
 
-    if [ -z "$path" ]; then
+    if [[ -z "$path" ]]; then
         return $FALSE;
     fi
 

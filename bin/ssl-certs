@@ -10,7 +10,7 @@ declare -r SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Set the
 declare -r UTILS_PATH="/lib/ssl-certs/ssl-certs-utils" # Load utils scripts
 
 # Load utils script
-if [ -f "$UTILS_PATH" ]; then
+if [[ -f "$UTILS_PATH" ]]; then
     source "$UTILS_PATH"
 else
     echo "[ERROR] Cannot found \"$UTILS_PATH\" utils library."
@@ -135,8 +135,8 @@ __ssl-certs_certbot_install()
     extra_options="${extra_options:1}"
 
     certbot=$(__certbot_exists)
-    if [ $? -eq $TRUE ]; then
-        if [ ! -L "$CERTBOT_SYMLINK" ]; then
+    if [[ $? -eq $TRUE ]]; then
+        if [[ ! -L "$CERTBOT_SYMLINK" ]]; then
             ln -s "$CERTBOT_PATH/certbot-auto" "$CERTBOT_SYMLINK" &>/dev/null
         fi
         certbot=$(__certbot_exists)
@@ -144,31 +144,31 @@ __ssl-certs_certbot_install()
         exit $EXIT_CODE_OK
     fi
 
-    if [ -d "$CERTBOT_PATH" ]; then
+    if [[ -d "$CERTBOT_PATH" ]]; then
         echo "[ERROR] The folder \"$CERTBOT_PATH\" already exists. Please remove it and try again."
         exit $EXIT_CODE_ERROR
     fi
 
     echo "[INFO] Certbot will be installed in $CERTBOT_PATH and a symlink will be created in \"/usr/bin\" folder..."
     git=$(which git)
-    if [ -z "$git" ]; then
+    if [[ -z "$git" ]]; then
         "[ERROR] Git is not installed. Please install it before running this command again."
         exit $EXIT_CODE_ERROR
     fi
 
     git clone "$CERTBOT_REPO" "$CERTBOT_PATH"
-    if [ ! -f "$CERTBOT_PATH/certbot-auto" ]; then
+    if [[ ! -f "$CERTBOT_PATH/certbot-auto" ]]; then
         echo "[ERROR] Could not install certbot. Please try again."
         exit $EXIT_CODE_ERROR
     fi
 
     ln -s "$CERTBOT_PATH/certbot-auto" "$CERTBOT_SYMLINK" &>/dev/null
-    if [ ! -L "$CERTBOT_SYMLINK" ]; then
+    if [[ ! -L "$CERTBOT_SYMLINK" ]]; then
         "[ERROR] Could not symlink certbot-auto but it was correctly installed in \"$CERTBOT_PATH\" folder."
         exit $EXIT_CODE_ERROR
     fi
 
-    if [ $no_deps -eq $FALSE ]; then
+    if [[ $no_deps -eq $FALSE ]]; then
         certbot=$(__certbot_exists)
         echo "Installing certbot dependencies..."
         $certbot --os-packages-only $extra_options
@@ -186,10 +186,10 @@ __ssl-certs_certbot_remove()
 {
     certbot=$(__certbot_or_fail $EXIT_CODE_OK "[INFO] Certbot is currently not installed.")
 
-    if [ -L "$CERTBOT_SYMLINK" ]; then
+    if [[ -L "$CERTBOT_SYMLINK" ]]; then
         echo "[INFO] Removing certbot symlink..."
         rm "$CERTBOT_SYMLINK" &>/dev/null
-        if [ ! $? -eq $EXIT_CODE_OK ]; then
+        if [[ ! $? -eq $EXIT_CODE_OK ]]; then
             echo "[ERROR] Could not remove certbot-auto symlink."
             exit $EXIT_CODE_ERROR
         else
@@ -199,7 +199,7 @@ __ssl-certs_certbot_remove()
 
     echo "[INFO] Certbot will be remove from \"$CERTBOT_PATH\"..."
     rm -rf "$CERTBOT_PATH" &>/dev/null
-    if [ -d "$CERTBOT_PATH" ]; then
+    if [[ -d "$CERTBOT_PATH" ]]; then
         echo "[ERROR] Could not remove certbot folder. Please try again."
         exit $EXIT_CODE_ERROR
     else
@@ -236,7 +236,7 @@ __ssl-certs_certbot_update()
 
     (cd "$CERTBOT_PATH" && git pull)
 
-    if [ $no_deps -eq $FALSE ]; then
+    if [[ $no_deps -eq $FALSE ]]; then
         echo "Updating certbot dependencies..."
         $certbot --os-packages-only $extra_options
         echo "Certbot dependencies updated."
@@ -307,7 +307,7 @@ __ssl-certs_get()
     config_files=$(find "$CONFIG_DOMAINS_PATH" -maxdepth 1 -type f -iname '*.ini' ! -iname '.*' | sort)
     OIFS="$IFS"; IFS=$'\n'; configs=($config_files); IFS="$OIFS"; configc=${#configs[@]}
 
-    if [ $configc -eq 0 ]; then
+    if [[ $configc -eq 0 ]]; then
         echo "[INFO] No domain configuration files found."
         exit $EXIT_CODE_OK
     fi
@@ -315,29 +315,29 @@ __ssl-certs_get()
     for f in "${configs[@]}"
     do
         cert_name=$(cat "$f" | grep "cert-name" | sed -E 's/cert-name( +)?=( +)?//')
-        if [ -d "$CERTBOT_LIVE_PATH/$cert_name" -a -L "$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_FULLCHAIN_SUFFIX.pem" ]; then
+        if [[ -d "$CERTBOT_LIVE_PATH/$cert_name" -a -L "$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_FULLCHAIN_SUFFIX.pem" ]]; then
             echo "[INFO] Certificate \"$cert_name\" exists, skipping certificate registration."
             continue
         fi
 
-        if [ -f "$CONFIG_HOOK_PRE_DOMAIN" ]; then
+        if [[ -f "$CONFIG_HOOK_PRE_DOMAIN" ]]; then
             echo "[INFO] Executing pre-domain hook for file \"$f\""
             source "$CONFIG_HOOK_PRE_DOMAIN"
         fi
 
         concat_config=$(__concat_config_files "$CONFIG_FILE" "$f")
-        if [ $? -eq $FALSE ]; then
+        if [[ $? -eq $FALSE ]]; then
             echo "[ERROR] There seems to be an error with your configuration. Fix the problems and try again."
             exit $EXIT_CODE_ERROR
         fi
         
-        if [ $? -eq $FALSE ]; then
+        if [[ $? -eq $FALSE ]]; then
             echo "[ERROR] An error occurred while concatenating config files."
             exit $EXIT_CODE_ERROR
         fi
 
         tmp_config=$(mktemp "/tmp/ssl-certs-config-XXXXXXXX.tmp")
-        if [ $? -eq $FALSE ]; then
+        if [[ $? -eq $FALSE ]]; then
             echo "[ERROR] An error occurred while saving the temp config file."
             exit $EXIT_CODE_ERROR
         fi
@@ -347,16 +347,16 @@ __ssl-certs_get()
         echo "[INFO] Finished executing certbot for config file \"$f\" with certificate name \"$cert_name\"."
 
         cert_fullchain="$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_FULLCHAIN_SUFFIX.pem"
-        if [ ! -L "$cert_fullchain" ]; then
+        if [[ ! -L "$cert_fullchain" ]]; then
             echo "[WARN] Seems like the certificate has not been correctly created, the live $CERTBOT_FULLCHAIN_SUFFIX file is missing."
         fi
 
         cert_privkey="$CERTBOT_LIVE_PATH/$cert_name/$CERTBOT_PRIVKEY_SUFFIX.pem"
-        if [ ! -L "$cert_privkey" ]; then
+        if [[ ! -L "$cert_privkey" ]]; then
             echo "[WARN] Seems like the certificate has not been correctly created, the live $CERTBOT_PRIVKEY_SUFFIX file is missing."
         fi
 
-        if [ -f "$CONFIG_HOOK_POST_DOMAIN" ]; then
+        if [[ -f "$CONFIG_HOOK_POST_DOMAIN" ]]; then
             echo "[INFO] Executing post-domain hook for cert_name \"$cert_name\"."
             source "$CONFIG_HOOK_POST_DOMAIN"
         fi
@@ -429,7 +429,7 @@ __ssl-certs_version()
 
 # ********** begin: entry point **********
 # Enforce to run with root privileges
-if [ $EUID != 0 ]; then
+if [[ $EUID != 0 ]]; then
     echo "Requesting root privileges to run ssl-certs..."
     sudo "$0" "$@"
     exit $?
