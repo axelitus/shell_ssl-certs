@@ -423,5 +423,11 @@ __ssl-certs_version()
 
 
 # ********** begin: entry point **********
+# Enforce to run with root privileges
+if [ $EUID != 0 ]; then
+    echo "Requesting root privileges to run ssl-certs..."
+    sudo "$0" "$@"
+    exit $?
+fi
 __ssl-certs "$@"
 # ********** end: entry point **********
