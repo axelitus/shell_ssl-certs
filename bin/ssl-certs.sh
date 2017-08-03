@@ -265,6 +265,9 @@ __ssl-certs_config()
         "new")
             __ssl-certs_config_new "${args[@]:1}"
             ;;
+        "remove")
+            __ssl-certs_config_remove "${args[@]:1}"
+            ;;
         *)
             __ssl-certs_config_help
             ;;
@@ -293,6 +296,7 @@ __ssl-certs_config_help_commands()
 {
     commands=( \
         "new" "Creates new configuration file." \
+        "remove" "Removes the configuration file." \
     )
 }
 # ---------- end: config help ----------
@@ -300,9 +304,123 @@ __ssl-certs_config_help_commands()
 # ---------- begin: config new ----------
 __ssl-certs_config_new()
 {
-    echo "Creates new config file"
+    local config_name="$1"
+    local edit=$FALSE
+
+    shift
+    while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]]
+    do
+        option="$1" && shift
+        case "$option" in
+            "--edit")
+                edit=$TRUE
+        esac
+    done
+
+    if [ -z "$config_name" ]; then
+        echo "No configuration name given."
+        __ssl-certs_config_new_help
+        return $EXIT_CODE_ERROR
+    fi
+
+    config_name=${config_name%.ini}
+    if [ -f "$CONFIG_DOMAINS_PATH/$config_name.ini" ]; then
+        echo "Configuration file \"$CONFIG_DOMAINS_PATH/$config_name.ini\" alread exists."
+        return $EXIT_CODE_ERROR
+    fi
+
+    cp "$CONFIG_DOMAINS_PATH/.example.ini" "$CONFIG_DOMAINS_PATH/$config_name.ini"
+    sed -i "s/cert-name = /cert-name = $config_name/g" "$CONFIG_DOMAINS_PATH/$config_name.ini"
+
+    if [ $edit -eq $TRUE ]; then
+        vim "$CONFIG_DOMAINS_PATH/$config_name.ini"
+    fi
+
+    echo "Config file \"$CONFIG_DOMAINS_PATH/$config_name.ini\" created."
 }
+
 # ---------- end: config new ----------
+
+# ---------- begin: config new help ----------
+__ssl-certs_config_new_help()
+{
+    echo
+    __ssl-certs_version
+    echo
+    echo -e "${COLOR_YELLOW}Usage:${COLOR_RESET}"
+    echo -e "  ${COLOR_GREEN}ssl-certs config new ${COLOR_RED}config_name"
+    echo
+    echo -e "${COLOR_YELLOW}Available options:${COLOR_RESET}"
+
+    __ssl-certs_config_new_help_options
+    for ((i=0; i<=${#options[@]}; i+=2)) do
+        cmd_str="$cmd_str  ${COLOR_GREEN}${options[i]}${COLOR_RESET}\t${options[i+1]}\n"
+    done
+    echo -e "$cmd_str" | column -t -s $'\t'
+}
+
+__ssl-certs_config_new_help_options()
+{
+    options=( \
+        "--edit" "Opens configuration file in vim." \
+    )
+}
+# ---------- begin: config new help ----------
+
+# ---------- begin: config remove ----------
+__ssl-certs_config_remove()
+{
+    local config_name="$1"
+    local assume_yes=$FALSE
+
+    shift
+    while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]]
+    do
+        option="$1" && shift
+        case "$option" in
+            "--assume-yes")
+                assume_yes=$TRUE
+        esac
+    done
+
+    if [ -z "$config_name" ]; then
+        echo "No configuration name given."
+        __ssl-certs_config_remove_help
+        return $EXIT_CODE_ERROR
+    fi
+
+    config_name=${config_name%.ini}
+    if [ ! -f "$CONFIG_DOMAINS_PATH/$config_name.ini" ]; then
+        echo "Configuration file \"$CONFIG_DOMAINS_PATH/$config_name.ini\" does not exist."
+        return $EXIT_CODE_OK
+    fi
+
+    if [ $assume_yes -eq $FALSE ]; then
+        echo -n "Are you sure you want to remove configuration \"$config_name\"? (y/N): "
+        read remove
+        if [[ "${remove[0]}" != "y" && "${remove[0]}" != "Y" ]]; then
+            echo "Configuration removal cancelled."
+            return $EXIT_CODE_OK
+        fi
+    fi
+
+    rm "$CONFIG_DOMAINS_PATH/$config_name.ini"
+    echo "Config file \"$CONFIG_DOMAINS_PATH/$config_name.ini\" removed."
+}
+
+# ---------- end: config remove ----------
+
+# ---------- begin: config remove help ----------
+__ssl-certs_config_remove_help()
+{
+    echo
+    __ssl-certs_version
+    echo
+    echo -e "${COLOR_YELLOW}Usage:${COLOR_RESET}"
+    echo -e "  ${COLOR_GREEN}ssl-certs config remove ${COLOR_RED}config_name"
+    echo
+}
+# ---------- begin: config remove help ----------
 
 # ========== end: config ==========
 
