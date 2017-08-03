@@ -30,11 +30,14 @@ __ssl-certs()
         "certbot")
             __ssl-certs_certbot "${args[@]:1}"
             ;;
-        "help" | "-h" | "-?")
-            __ssl-certs_help
+        "config")
+            __ssl-certs_config "${args[@]:1}"
             ;;
         "get")
             __ssl-certs_get "${args[@]:1}"
+            ;;
+        "help" | "-h" | "-?")
+            __ssl-certs_help
             ;;
         "list")
             __ssl-certs_list "${args[@]:1}"
@@ -91,7 +94,7 @@ __ssl-certs_certbot_help()
     __ssl-certs_version
     echo
     echo -e "${COLOR_YELLOW}Usage:${COLOR_RESET}"
-    echo -e "  ${COLOR_GREEN}ssl-certs certbot${COLOR_RESET} command"
+    echo -e "  ${COLOR_GREEN}ssl-certs certbot${COLOR_RESET} <command>"
     echo
     echo -e "${COLOR_YELLOW}Available commands:${COLOR_RESET}"
 
@@ -110,7 +113,7 @@ __ssl-certs_certbot_help_commands()
         "update" "Updates Let's Encrypt certbot to the latest published version." \
     )
 }
-# ---------- begin: certbot help ----------
+# ---------- end: certbot help ----------
 
 # ---------- begin: certbot install ----------
 __ssl-certs_certbot_install()
@@ -247,39 +250,61 @@ __ssl-certs_certbot_update()
 # ========== end: certbot ==========
 
 
-# ========== begin: help ==========
+# ========== begin: config ==========
 
-__ssl-certs_help()
+__ssl-certs_config()
+{
+    local args action
+
+    args=("$@")
+    action=${args[0]}
+    case "$action" in
+        "help" | "-h" | "-?")
+            __ssl-certs_config_help
+            ;;
+        "new")
+            __ssl-certs_config_new "${args[@]:1}"
+            ;;
+        *)
+            __ssl-certs_config_help
+            ;;
+    esac
+}
+
+# ---------- begin: config help ----------
+__ssl-certs_config_help()
 {
     echo
     __ssl-certs_version
     echo
     echo -e "${COLOR_YELLOW}Usage:${COLOR_RESET}"
-    echo -e "  ${COLOR_GREEN}ssl-certs${COLOR_RESET} command [sub-command]"
+    echo -e "  ${COLOR_GREEN}ssl-certs config${COLOR_RESET} <command>"
     echo
     echo -e "${COLOR_YELLOW}Available commands:${COLOR_RESET}"
 
-    __ssl-certs_help_commands
+    __ssl-certs_config_help_commands
     for ((i=0; i<=${#commands[@]}; i+=2)) do
         cmd_str="$cmd_str  ${COLOR_GREEN}${commands[i]}${COLOR_RESET}\t${commands[i+1]}\n"
     done
     echo -e "$cmd_str" | column -t -s $'\t'
 }
 
-__ssl-certs_help_commands()
+__ssl-certs_config_help_commands()
 {
     commands=( \
-        "certbot" "Manages Let's Encrypt certbot." \
-        "help" "Displays help for this application." \
-        "get" "Gets new certificates for domains from Let's Encrypt." \
-        "list" "Lists all registered certifciates."
-        "renew" "Renews existing Let's Encrypt issued certificates." \
-        "revoke" "Revokes existing Let's Encrypt issued certificates." \
-        "version" "Displays this application version." \
+        "new" "Creates new configuration file." \
     )
 }
+# ---------- end: config help ----------
 
-# ========== end: help ==========
+# ---------- begin: config new ----------
+__ssl-certs_config_new()
+{
+    echo "Creates new config file"
+}
+# ---------- end: config new ----------
+
+# ========== end: config ==========
 
 
 # ========== begin: get ==========
@@ -374,7 +399,43 @@ __ssl-certs_get()
 # ========== end: get ==========
 
 
-# ========== begin: get ==========
+# ========== begin: help ==========
+
+__ssl-certs_help()
+{
+    echo
+    __ssl-certs_version
+    echo
+    echo -e "${COLOR_YELLOW}Usage:${COLOR_RESET}"
+    echo -e "  ${COLOR_GREEN}ssl-certs${COLOR_RESET} <command> [<sub-command>]"
+    echo
+    echo -e "${COLOR_YELLOW}Available commands:${COLOR_RESET}"
+
+    __ssl-certs_help_commands
+    for ((i=0; i<=${#commands[@]}; i+=2)) do
+        cmd_str="$cmd_str  ${COLOR_GREEN}${commands[i]}${COLOR_RESET}\t${commands[i+1]}\n"
+    done
+    echo -e "$cmd_str" | column -t -s $'\t'
+}
+
+__ssl-certs_help_commands()
+{
+    commands=( \
+        "certbot" "Manages Let's Encrypt certbot." \
+        "config" "Handles configuration options." \
+        "get" "Gets new certificates for domains from Let's Encrypt." \
+        "help" "Displays help for this application." \
+        "list" "Lists all registered certifciates."
+        "renew" "Renews existing Let's Encrypt issued certificates." \
+        "revoke" "Revokes existing Let's Encrypt issued certificates." \
+        "version" "Displays this application version." \
+    )
+}
+
+# ========== end: help ==========
+
+
+# ========== begin: list ==========
 
 __ssl-certs_list()
 {
@@ -397,7 +458,7 @@ __ssl-certs_list()
     $certbot certificates $extra_options
 }
 
-# ========== end: get ==========
+# ========== end: list ==========
 
 
 # ========== begin: renew ==========
