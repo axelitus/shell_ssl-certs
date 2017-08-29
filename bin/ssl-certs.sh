@@ -13,7 +13,7 @@ declare -r UTILS_PATH="/lib/ssl-certs/ssl-certs-utils" # Load utils scripts
 if [[ -f "$UTILS_PATH" ]]; then
     source "$UTILS_PATH"
 else
-    echo "[ERROR] Cannot found \"$UTILS_PATH\" utils library."
+    echo "[ERROR] Cannot find \"$UTILS_PATH\" utils library."
     exit 1
 fi
 
