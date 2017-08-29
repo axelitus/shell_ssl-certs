@@ -5,7 +5,7 @@
 # author: Axel Pardemann (axelitus)
 # ================================================================================
 declare -r SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-declare -r BIN_PATH="/usr/bin"
+declare -r BIN_PATH="/usr/sbin"
 declare -r ETC_PATH="/etc/ssl-certs"
 declare -r LIB_PATH="/lib/ssl-certs"
 

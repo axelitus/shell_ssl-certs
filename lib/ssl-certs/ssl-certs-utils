@@ -12,7 +12,7 @@ declare -r EXIT_CODE_OK=0 # Set default exit code ok
 declare -r EXIT_CODE_ERROR=1 # Set default exit code error
 
 declare -r CERTBOT_PATH="/opt/certbot" # The path to the certbot-auto executable
-declare -r CERTBOT_SYMLINK="/usr/bin/certbot-auto" # Set the path to the certbot symlink
+declare -r CERTBOT_SYMLINK="/usr/sbin/certbot-auto" # Set the path to the certbot symlink
 declare -r CERTBOT_REPO="https://github.com/certbot/certbot" # Set the certbot repo address to clone
 declare -r CERTBOT_STORAGE_PATH="/etc/letsencrypt" # Set the certbot storage path
 declare -r CERTBOT_ARCHIVE_PATH="$CERTBOT_STORAGE_PATH/archive" # Set the certbot archive path
