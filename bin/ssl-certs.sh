@@ -152,7 +152,7 @@ __ssl-certs_certbot_install()
         exit $EXIT_CODE_ERROR
     fi
 
-    echo "[INFO] Certbot will be installed in $CERTBOT_PATH and a symlink will be created in \"/usr/bin\" folder..."
+    echo "[INFO] Certbot will be installed in $CERTBOT_PATH and a symlink will be created in \"$CERTBOT_SYMLINK\"..."
     git=$(which git)
     if [[ -z "$git" ]]; then
         "[ERROR] Git is not installed. Please install it before running this command again."
